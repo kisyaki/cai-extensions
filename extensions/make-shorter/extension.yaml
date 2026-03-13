@@ -1,0 +1,11 @@
+name: Make Shorter
+description: Condense text while preserving key points
+author: clipboard-ai
+version: "1.0"
+tags: [writing, editing]
+icon: text.badge.minus
+type: shortcut
+shortcut:
+  kind: prompt
+  value: |
+    Make this text shorter and more concise. Remove filler words and redundancy. Keep the key points and original tone. Do not use any markdown formatting.
