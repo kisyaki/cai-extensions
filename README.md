@@ -15,7 +15,18 @@ Extensions are organized by category in the [`extensions/`](extensions/) directo
 
 ## Create an Extension
 
-Each extension is a single YAML file that starts with `# cai-extension` on the first line. There are four types:
+Each extension is a single YAML file that starts with `# cai-extension` on the first line.
+
+### Extension Types
+
+| Type | What it does | Needs LLM? |
+|------|-------------|------------|
+| `prompt` | Sends clipboard text to the LLM with a custom instruction | Yes |
+| `url` | Opens a URL with `%s` replaced by clipboard text | No |
+| `webhook` | Sends text to an HTTP endpoint (Slack, Discord, etc.) | No |
+| `deeplink` | Opens a URL scheme / deep link (Bear, Things, etc.) | No |
+| `shell` | Runs a shell command with the text | No (local only) |
+| `applescript` | Runs an AppleScript with the text | No (local only) |
 
 ### Prompt Shortcut
 
