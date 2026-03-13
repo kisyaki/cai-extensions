@@ -1,0 +1,10 @@
+# cai-extension
+name: "Change Tone: Casual"
+description: Rewrite text in a friendly, conversational tone
+author: clipboard-ai
+version: "1.0"
+tags: [writing, tone]
+icon: face.smiling
+type: prompt
+prompt: |
+  Rewrite this text in a casual, friendly tone. Make it sound natural and conversational, like you're talking to a friend. Keep the original meaning. Do not use any markdown formatting.

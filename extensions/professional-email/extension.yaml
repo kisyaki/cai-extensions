@@ -1,11 +1,10 @@
+# cai-extension
 name: Professional Email
 description: Rewrite text as a polished professional email
 author: clipboard-ai
 version: "1.0"
 tags: [writing, email, business]
 icon: envelope.fill
-type: shortcut
-shortcut:
-  kind: prompt
-  value: |
-    Rewrite this as a professional email. Add an appropriate greeting and sign-off. Keep the core message but make it polished, clear, and concise. Do not use any markdown formatting.
+type: prompt
+prompt: |
+  Rewrite this as a professional email. Add an appropriate greeting and sign-off. Keep the core message but make it polished, clear, and concise. Do not use any markdown formatting.

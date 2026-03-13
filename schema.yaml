@@ -1,5 +1,6 @@
-# Cai Extension Schema v1
+# Cai Extension Schema v2
 # This file documents the YAML format for Cai extensions.
+# All extensions must start with "# cai-extension" on the first line.
 # Extensions are either shortcuts (LLM prompts, URL templates) or output destinations.
 
 # --- Required fields ---
@@ -12,44 +13,34 @@ icon: "star.fill"                    # SF Symbol name (see https://developer.app
 
 # --- Extension type (pick one) ---
 
-# Option A: Shortcut — appears in the action list
-type: shortcut
-shortcut:
-  # kind: prompt — sends clipboard text to the LLM with this instruction
-  kind: prompt  # prompt | url
-  value: |
-    Your LLM prompt here.
-    The clipboard text is passed automatically as context.
+# type: prompt — sends clipboard text to the LLM with your instruction
+type: prompt
+prompt: |
+  Your LLM prompt here.
+  The clipboard text is passed automatically as context.
 
-  # kind: url — opens a URL with %s replaced by the clipboard text
-  # kind: url
-  # value: "https://example.com/search?q=%s"
+# type: url — opens a URL with %s replaced by the clipboard text
+# type: url
+# url: "https://example.com/search?q=%s"
 
-# Option B: Output destination — appears after LLM results
-# type: destination
-# destination:
-#   kind: webhook  # webhook | applescript | url_scheme | shell
-#   show_in_action_list: false  # true = also show as a direct action (skips LLM)
-#
-#   # For kind: webhook
-#   webhook:
-#     url: "https://api.example.com/endpoint"
-#     method: POST  # POST | PUT | PATCH
-#     headers:
-#       Content-Type: application/json
-#     body: '{"text": "{{result}}"}'
-#
-#   # For kind: applescript
-#   applescript: |
-#     tell application "Bear"
-#       create note with text "{{result}}"
-#     end tell
-#
-#   # For kind: url_scheme
-#   url_scheme: "bear://x-callback-url/create?text={{result}}"
-#
-#   # For kind: shell
-#   shell: "echo '{{result}}' | pbcopy"
+# type: webhook — sends text to an HTTP endpoint
+# type: webhook
+# show_in_action_list: false  # true = also show as a direct action (skips LLM)
+# webhook:
+#   url: "https://api.example.com/endpoint"
+#   method: POST  # POST | PUT | PATCH
+#   headers:
+#     Content-Type: application/json
+#   body: '{"text": "{{result}}"}'
+
+# type: deeplink — opens a URL scheme / deep link
+# type: deeplink
+# show_in_action_list: true
+# deeplink: "bear://x-callback-url/create?text={{result}}"
+
+# --- Not allowed via clipboard install (security) ---
+# type: applescript  — must be created locally in Cai
+# type: shell        — must be created locally in Cai
 
 # --- Optional: setup fields (user must configure before first use) ---
 # setup:

@@ -2,98 +2,121 @@
 
 Community-contributed shortcuts and output destinations for [Cai](https://getcai.app), the macOS clipboard manager.
 
+## Install an Extension
+
+1. Browse the [`extensions/`](extensions/) directory and open the `extension.yaml` you want
+2. Copy the entire YAML content (including the `# cai-extension` header)
+3. Press **Option+C** — Cai detects it as an extension and shows **Install Extension**
+4. Press Enter — done!
+
 ## Browse Extensions
 
-Extensions are available directly in Cai via **Settings > Extensions** (coming soon). You can also browse the [`extensions/`](extensions/) directory.
+Extensions are organized by category in the [`extensions/`](extensions/) directory.
 
 ## Create an Extension
 
-Each extension is a single YAML file. There are two types:
+Each extension is a single YAML file that starts with `# cai-extension` on the first line. There are four types:
 
-### Shortcut: LLM Prompt
+### Prompt Shortcut
 
 Sends clipboard text to the LLM with your instruction:
 
 ```yaml
+# cai-extension
 name: Professional Email
 description: Rewrite text as a polished professional email
 author: your-github-username
 version: "1.0"
 tags: [writing, email]
 icon: envelope.fill
-type: shortcut
-shortcut:
-  kind: prompt
-  value: |
-    Rewrite the following text as a professional email.
-    Keep the core message but make it polished and clear.
-    Include a greeting and sign-off.
+type: prompt
+prompt: |
+  Rewrite the following text as a professional email.
+  Keep the core message but make it polished and clear.
+  Include a greeting and sign-off.
 ```
 
-### Shortcut: URL Template
+### URL Shortcut
 
 Opens a URL with `%s` replaced by the clipboard text:
 
 ```yaml
+# cai-extension
 name: Search StackOverflow
 description: Search StackOverflow for the selected text
 author: your-github-username
 version: "1.0"
 tags: [developer, search]
 icon: magnifyingglass
-type: shortcut
-shortcut:
-  kind: url
-  value: "https://stackoverflow.com/search?q=%s"
+type: url
+url: "https://stackoverflow.com/search?q=%s"
 ```
 
-### Output Destination
+### Webhook Destination
 
-Sends LLM results (or clipboard text directly) to an external service:
+Sends text to an HTTP endpoint:
 
 ```yaml
+# cai-extension
 name: Send to Slack
 description: Post text to a Slack channel via webhook
 author: your-github-username
 version: "1.0"
 tags: [productivity, slack]
 icon: bubble.left.fill
-type: destination
-destination:
-  kind: webhook
-  show_in_action_list: true
-  webhook:
-    url: "{{slack_webhook_url}}"
-    method: POST
-    headers:
-      Content-Type: application/json
-    body: '{"text": "{{result}}"}'
+type: webhook
+show_in_action_list: true
+webhook:
+  url: "{{slack_webhook_url}}"
+  method: POST
+  headers:
+    Content-Type: application/json
+  body: '{"text": "{{result}}"}'
 setup:
   - key: slack_webhook_url
     label: Slack Webhook URL
     secret: false
 ```
 
-Destination kinds: `webhook`, `applescript`, `url_scheme`, `shell`.
+### Deeplink Destination
+
+Opens a URL scheme / deep link with the result text:
+
+```yaml
+# cai-extension
+name: Save to Bear
+description: Create a new note in Bear
+author: your-github-username
+version: "1.0"
+tags: [productivity, notes]
+icon: doc.text
+type: deeplink
+show_in_action_list: true
+deeplink: "bear://x-callback-url/create?text={{result}}"
+```
 
 See [`schema.yaml`](schema.yaml) for the full format reference.
+
+> **Security note:** `applescript` and `shell` destinations are supported in Cai but are **not accepted** via clipboard install or in this community repo — they allow arbitrary code execution. You can create them locally in Cai via Settings > Output Destinations.
 
 ## Submit an Extension
 
 1. Fork this repo
 2. Create a folder under `extensions/` with a kebab-case name (e.g. `professional-email`)
-3. Add an `extension.yaml` file inside it
+3. Add an `extension.yaml` file inside it (must start with `# cai-extension`)
 4. Open a pull request
 
-CI will validate your YAML automatically. Once merged, the extension appears in Cai's extension browser.
+All PRs require review and approval before merging.
 
 ### Guidelines
 
 - **One extension per folder** -- keep it focused
-- **Test your extension** in Cai before submitting
+- **Start with `# cai-extension`** on the first line -- required for Cai to detect the extension
+- **Test your extension** in Cai before submitting (copy the YAML, press Option+C)
 - **Use SF Symbol names** for icons ([browse symbols](https://developer.apple.com/sf-symbols/))
 - **Write a clear description** -- this is what users see when browsing
 - **No API keys in YAML** -- use `setup` fields for secrets, which Cai stores in the user's Keychain
+- **No `applescript` or `shell` destinations** -- these are not accepted for security reasons
 
 ## Required Fields
 
@@ -105,7 +128,7 @@ CI will validate your YAML automatically. Once merged, the extension appears in 
 | `version` | Version string (e.g. `"1.0"`) |
 | `tags` | Array of lowercase tags for search/filtering |
 | `icon` | SF Symbol name |
-| `type` | `shortcut` or `destination` |
+| `type` | `prompt`, `url`, `webhook`, or `deeplink` |
 
 ## Template Placeholders
 

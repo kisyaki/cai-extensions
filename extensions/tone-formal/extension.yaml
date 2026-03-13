@@ -1,0 +1,10 @@
+# cai-extension
+name: "Change Tone: Formal"
+description: Rewrite text in a formal, professional tone
+author: clipboard-ai
+version: "1.0"
+tags: [writing, tone, business]
+icon: briefcase.fill
+type: prompt
+prompt: |
+  Rewrite this text in a formal, professional tone. Use polished language suitable for business or academic contexts. Keep the original meaning. Do not use any markdown formatting.

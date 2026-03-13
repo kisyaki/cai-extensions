@@ -1,0 +1,10 @@
+# cai-extension
+name: Make Longer
+description: Expand text with more detail and clarity
+author: clipboard-ai
+version: "1.0"
+tags: [writing, editing]
+icon: text.badge.plus
+type: prompt
+prompt: |
+  Expand this text to be longer and more detailed. Add supporting points, examples, or elaboration where appropriate. Keep the original meaning and tone. Do not use any markdown formatting.

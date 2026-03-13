@@ -25,6 +25,13 @@ jobs:
               continue
             fi
 
+            # Check for # cai-extension header
+            first_line=$(head -1 "$file")
+            if [ "$first_line" != "# cai-extension" ]; then
+              echo "::error::$slug: must start with '# cai-extension' on the first line"
+              errors=$((errors + 1))
+            fi
+
             # Check required fields
             for field in name description author version tags icon type; do
               if ! grep -q "^$field:" "$file"; then
@@ -35,8 +42,23 @@ jobs:
 
             # Check type is valid
             type=$(grep '^type:' "$file" | head -1 | sed 's/^type: *//')
-            if [ "$type" != "shortcut" ] && [ "$type" != "destination" ]; then
-              echo "::error::$slug: type must be 'shortcut' or 'destination', got '$type'"
+            case "$type" in
+              prompt|url|webhook|deeplink) ;;
+              applescript|shell)
+                echo "::error::$slug: type '$type' is not allowed for security reasons"
+                errors=$((errors + 1))
+                ;;
+              *)
+                echo "::error::$slug: type must be 'prompt', 'url', 'webhook', or 'deeplink', got '$type'"
+                errors=$((errors + 1))
+                ;;
+            esac
+
+            # Check author matches PR submitter
+            author=$(grep '^author:' "$file" | head -1 | sed 's/^author: *//')
+            pr_author="${{ github.event.pull_request.user.login }}"
+            if [ -n "$author" ] && [ "$author" != "$pr_author" ]; then
+              echo "::error::$slug: author field '$author' must match your GitHub username '$pr_author'"
               errors=$((errors + 1))
             fi
 
