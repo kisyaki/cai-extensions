@@ -24,12 +24,14 @@ Community-contributed extensions for [Cai](https://getcai.app), the macOS clipbo
 
 ## Submit an Extension
 
-1. Fork this repo
-2. Create a folder under `extensions/` with a kebab-case name
-3. Add an `extension.yaml` inside it
-4. Open a pull request
+The easiest way to share an extension you've built:
 
-See the [extension creation guide](https://getcai.app/docs/usage/extensions#creating-an-extension) for format reference, examples, and guidelines.
+1. Open **Settings > Custom Shortcuts** (or **Output Destinations**)
+2. Click the **share icon** on any shortcut or destination
+3. Cai copies the extension YAML to your clipboard and opens this repo
+4. Fork, create a folder under `extensions/`, paste the YAML as `extension.yaml`, and open a PR
+
+Or create the YAML manually — see the [extension creation guide](https://getcai.app/docs/usage/extensions#creating-an-extension) for the full format reference.
 
 ## Security
 
