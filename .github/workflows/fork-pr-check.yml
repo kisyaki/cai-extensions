@@ -1,0 +1,23 @@
+name: Fork PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'extensions/**'
+
+jobs:
+  check-maintainer-modify:
+    if: github.event.pull_request.head.repo.fork == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check maintainer can modify
+        run: |
+          if [ "${{ github.event.pull_request.maintainer_can_modify }}" != "true" ]; then
+            echo "::error::Please enable 'Allow edits from maintainers' on this PR."
+            echo ""
+            echo "This is required so our CI can auto-generate index.json after merge."
+            echo "See: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/allowing-changes-to-a-pull-request-branch-created-from-a-fork"
+            exit 1
+          fi
+          echo "✓ Maintainer can modify is enabled"

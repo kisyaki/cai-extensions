@@ -1,0 +1,69 @@
+name: Generate CODEOWNERS
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'extensions/**/extension.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: generate-codeowners
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ADMIN_TOKEN }}
+
+      - name: Generate CODEOWNERS from extension authors
+        run: |
+          codeowners=".github/CODEOWNERS"
+
+          # Header
+          cat > "$codeowners" <<'HEADER'
+          # Auto-generated from extension.yaml author fields.
+          # Do not edit manually — run the Generate CODEOWNERS workflow.
+
+          # Default: repo owner reviews everything
+          * @soyasis
+
+          # Extension-specific owners
+          HEADER
+
+          # Remove leading whitespace from heredoc
+          sed -i 's/^          //' "$codeowners"
+
+          for dir in extensions/*/; do
+            [ -d "$dir" ] || continue
+            file="$dir/extension.yaml"
+            [ -f "$file" ] || continue
+
+            slug=$(basename "$dir")
+            author=$(grep '^author:' "$file" | head -1 | sed 's/^author: *//' | sed 's/^"//' | sed 's/"$//')
+
+            # Skip seed extensions (owned by repo admin)
+            if [ "$author" = "clipboard-ai" ]; then
+              continue
+            fi
+
+            # Map author to GitHub username (they should match per our validation)
+            echo "/extensions/$slug/ @$author @soyasis" >> "$codeowners"
+          done
+
+          echo "" >> "$codeowners"
+          echo "# End of auto-generated CODEOWNERS" >> "$codeowners"
+
+      - name: Commit CODEOWNERS if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/CODEOWNERS
+          git diff --cached --quiet || git commit -m "Update CODEOWNERS from extension authors"
+          git pull --rebase
+          git push

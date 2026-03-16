@@ -6,6 +6,10 @@ on:
     paths:
       - 'extensions/**'
 
+concurrency:
+  group: build-index
+  cancel-in-progress: false
+
 jobs:
   build-index:
     runs-on: ubuntu-latest

@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Register problem matcher
+        run: echo "::add-matcher::.github/cai-matcher.json"
+
       - name: Validate extension YAML files
         run: |
           errors=0
@@ -20,7 +23,7 @@ jobs:
             file="$dir/extension.yaml"
 
             if [ ! -f "$file" ]; then
-              echo "::error::$slug: missing extension.yaml"
+              echo "::error file=$file,line=1::missing extension.yaml"
               errors=$((errors + 1))
               continue
             fi
@@ -28,27 +31,29 @@ jobs:
             # Check for # cai-extension header
             first_line=$(head -1 "$file")
             if [ "$first_line" != "# cai-extension" ]; then
-              echo "::error::$slug: must start with '# cai-extension' on the first line"
+              echo "::error file=$file,line=1::must start with '# cai-extension' on the first line"
               errors=$((errors + 1))
             fi
 
             # Check required fields
             for field in name description author version tags icon type; do
               if ! grep -q "^$field:" "$file"; then
-                echo "::error::$slug: missing required field '$field'"
+                echo "::error file=$file,line=1::missing required field '$field'"
                 errors=$((errors + 1))
               fi
             done
 
             # Check type is valid
-            type=$(grep '^type:' "$file" | head -1 | sed 's/^type: *//')
+            type_line=$(grep -n '^type:' "$file" | head -1)
+            type_lineno=$(echo "$type_line" | cut -d: -f1)
+            type=$(echo "$type_line" | sed 's/^[0-9]*:type: *//')
             case "$type" in
               prompt|url|webhook|deeplink) ;;
               shell|applescript)
-                echo "::warning::$slug: type '$type' requires extra security review"
+                echo "::warning file=$file,line=$type_lineno::type '$type' requires extra security review"
                 ;;
               *)
-                echo "::error::$slug: type must be 'prompt', 'url', 'webhook', 'deeplink', or 'shell', got '$type'"
+                echo "::error file=$file,line=$type_lineno::invalid type '$type' — must be prompt, url, webhook, deeplink, or shell"
                 errors=$((errors + 1))
                 ;;
             esac
@@ -57,22 +62,24 @@ jobs:
             if [ "$type" = "webhook" ]; then
               webhook_url=$(grep -A5 '^webhook:' "$file" | grep 'url:' | head -1 | sed 's/^.*url: *//')
               if echo "$webhook_url" | grep -qiE '^http://'; then
-                echo "::error::$slug: webhook URL must use HTTPS"
+                echo "::error file=$file,line=$type_lineno::webhook URL must use HTTPS"
                 errors=$((errors + 1))
               fi
             fi
 
-            # Check author matches PR submitter
-            author=$(grep '^author:' "$file" | head -1 | sed 's/^author: *//')
+            # Check author matches PR submitter (skip for seed extensions)
+            author_line=$(grep -n '^author:' "$file" | head -1)
+            author_lineno=$(echo "$author_line" | cut -d: -f1)
+            author=$(echo "$author_line" | sed 's/^[0-9]*:author: *//')
             pr_author="${{ github.event.pull_request.user.login }}"
-            if [ -n "$author" ] && [ "$author" != "$pr_author" ]; then
-              echo "::error::$slug: author field '$author' must match your GitHub username '$pr_author'"
+            if [ -n "$author" ] && [ "$author" != "clipboard-ai" ] && [ "$author" != "$pr_author" ]; then
+              echo "::error file=$file,line=$author_lineno::author '$author' must match your GitHub username '$pr_author'"
               errors=$((errors + 1))
             fi
 
             # Check slug matches directory name convention (lowercase, hyphens)
             if ! echo "$slug" | grep -qE '^[a-z0-9][a-z0-9-]*$'; then
-              echo "::error::$slug: directory name must be lowercase with hyphens only"
+              echo "::error file=$file,line=1::directory name must be lowercase with hyphens only"
               errors=$((errors + 1))
             fi
           done

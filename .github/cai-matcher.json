@@ -1,0 +1,15 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "cai-validate",
+      "pattern": [
+        {
+          "regexp": "^::error file=([^,]+),line=(\\d+)::(.+)$",
+          "file": 1,
+          "line": 2,
+          "message": 3
+        }
+      ]
+    }
+  ]
+}
