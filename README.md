@@ -36,6 +36,5 @@ Or create the YAML manually — see the [extension creation guide](https://getca
 
 ## Security
 
-- `applescript` and `shell` types are **not accepted** from community contributors
 - Webhook URLs must use HTTPS and `{{setup_field}}` placeholders — never hardcode endpoints
 - No API keys in YAML — use `setup` fields with `secret: true`
