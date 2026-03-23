@@ -1,0 +1,19 @@
+# cai-extension
+name: Send to Slack
+description: Post text to a Slack channel via webhook
+author: clipboard-ai
+version: "1.0"
+tags: [productivity, slack]
+icon: bubble.left.fill
+type: webhook
+show_in_action_list: true
+webhook:
+  url: "{{slack_webhook_url}}"
+  method: POST
+  headers:
+    Content-Type: application/json
+  body: '{"text": "{{result}}"}'
+setup:
+  - key: slack_webhook_url
+    label: Slack Webhook URL
+    secret: false
